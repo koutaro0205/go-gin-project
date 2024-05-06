@@ -1,31 +1,56 @@
 package main
 
 import (
+	"errors"
+	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/samber/lo"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
+func dbInit() *gorm.DB {
+	// dbを作成
+	// NOTE: "@tcp(XX)"の"XX"には、docker-compose.ymlのサービス名orコンテナ名が入る
+	dsn := "root:password@tcp(db)/go_gin_project_db?charset=utf8mb4&parseTime=true&loc=Local"
+	// DBインスタンスを初期化
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	return db
+}
+
 type Todo struct {
-	Id    int    `json: "id"`
+	gorm.Model
+
 	Title string `json: "title"`
 	Done  bool   `json: "done"`
 	Body  string `json: "body"`
 }
 
 func main() {
-	todos := []Todo{{
-		Id:    1,
-		Body:  "default Body",
-		Title: "default Title",
-		Done:  false,
-	}}
+	// dbを作成します
+	db := dbInit()
+
+	// dbをmigrate
+	db.AutoMigrate(&Todo{})
 
 	router := gin.Default()
 
+	// 全件取得
 	router.GET("/todos", func(c *gin.Context) {
+		todos := []Todo{}
+		result := db.Find(&todos)
+
+		if err := result.Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"status": "success",
 			"todos":  todos,
@@ -40,65 +65,51 @@ func main() {
 		}
 
 		// データを登録
-		// HACK: GORM等を使用してデータベースに登録する
-		todo.Id = len(todos) + 1
-		todos = append(todos, todo)
+		result := db.Create(&todo)
+		if err := result.Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
 		// 正常系レスポンス
-		c.JSON(http.StatusCreated, gin.H{"message": "Todo created successfully", "todos": todos})
+		c.JSON(http.StatusCreated, gin.H{"message": "Todo created successfully", "todo": todo})
 	})
 
+	// 更新
 	router.PATCH("/todos/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		var todo Todo // フロントから送信されたデータ
+
+		todo := Todo{} // フロントから送信されたデータがバインドされる
+
+		prevTodo := db.First(&todo, "id = ?", id) // 先に更新するデータを取得
+		if errors.Is(prevTodo.Error, gorm.ErrRecordNotFound) {
+			log.Fatal(prevTodo.Error)
+			return
+		}
 
 		if err := c.ShouldBindJSON(&todo); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		// Parameterのidに紐づくtodoデータを探す
-		_, index, hasTodo := lo.FindIndexOf(todos, func(t Todo) bool {
-			return strconv.Itoa(t.Id) == id
-		})
-
-		// 該当のデータが存在しない場合、エラーを返す
-		if !hasTodo {
-			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "not found"})
+		result := db.Save(&todo)
+		if err := result.Error; err != nil {
+			log.Fatal(err)
 			return
 		}
 
-		// データを更新
-		todos[index].Title = todo.Title
-		todos[index].Body = todo.Body
-		todos[index].Done = todo.Done
-
 		// 正常系レスポンス
-		c.JSON(http.StatusOK, gin.H{"message": "Todo updated successfully", "id": id})
+		c.JSON(http.StatusOK, gin.H{"message": "Todo updated successfully", "todo": todo})
 	})
 
 	router.DELETE("/todos/:id", func(c *gin.Context) {
 		id := c.Param("id")
-		var todo Todo // フロントから送信されたデータ
 
-		if err := c.ShouldBindJSON(&todo); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		result := db.Where("id = ?", id).Delete(&Todo{})
+		if err := result.Error; err != nil {
+			log.Fatal(err)
 			return
 		}
-
-		// // Parameterのidに紐づくtodoデータを探す
-		_, index, hasTodo := lo.FindIndexOf(todos, func(t Todo) bool {
-			return strconv.Itoa(t.Id) == id
-		})
-
-		// 該当のデータが存在しない場合、エラーを返す
-		if !hasTodo {
-			c.JSON(http.StatusBadRequest, gin.H{"errorMessage": "not found"})
-			return
-		}
-
-		// データを削除
-		todos = append(todos[:index], todos[index+1:]...)
 
 		// 正常系レスポンス
 		c.JSON(http.StatusOK, gin.H{"message": "Todo deleted successfully", "id": id})

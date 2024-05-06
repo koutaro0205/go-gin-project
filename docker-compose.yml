@@ -3,9 +3,28 @@ version: '3.8'
 services:
   app:
     build: . # Dockerfileがある場所を指定
-    container_name: app
+    container_name: go-gin-project-app
     ports:
       - "8000:8000"
     volumes:
       - "./src:/app"
     tty: true
+    depends_on:
+      - db # dbコンテナが起動してからappコンテナを起動させる
+  db:
+    image: mysql:8.3
+    platform: linux/amd64
+    container_name: go-gin-project-db
+    environment:
+      MYSQL_DATABASE: go_gin_project_db
+      MYSQL_ROOT_PASSWORD: password
+    # command: >
+    #   --character-set-server=utf8mb4
+    #   --collation-server=utf8mb4_general_ci
+    volumes:
+      - db-volume:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+volumes:
+  db-volume:
