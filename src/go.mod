@@ -1,4 +1,4 @@
-module my-go
+module go-gin-project
 
 go 1.21.0
 
