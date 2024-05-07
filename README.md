@@ -1,4 +1,4 @@
-# Dockerを使ってgo,ginの環境を構築する
+# Todo App API With Go lang
 
 ## 参考
 
@@ -9,23 +9,23 @@
 1. コンテナ起動
 
 ```shell
-$ docker-compose up -d
+$ make start
 ```
 
 2. ローカルサーバー起動
 
 ```shell
-$ docker-compose exec app go run main.go
+$ make run
 ```
 
-3. 起動確認
+3. 起動確認（TODO一覧）
 
-[`localhost:8000`](localhost:8000)にアクセスする
+[`localhost:8000/todos`](localhost:8000/todos)にアクセスする
 
 4. 停止
 
 ```shell
-$ docker-compose down
+$ make stop
 ```
 
 (プロセスが残っていないか確認する)
