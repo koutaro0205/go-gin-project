@@ -18,7 +18,7 @@ func InitDB() {
 	}
 
 	DB = db
-	DB.AutoMigrate(&model.User{}, &model.Todo{})
+	DB.AutoMigrate(&model.Todo{})
 }
 
 func GetDB() *gorm.DB {

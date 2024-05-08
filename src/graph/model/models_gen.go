@@ -2,18 +2,16 @@
 
 package model
 
+type FetchTodo struct {
+	ID int `json:"id"`
+}
+
 type Mutation struct {
 }
 
 type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+	Title string `json:"title"`
 }
 
 type Query struct {
-}
-
-type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
 }

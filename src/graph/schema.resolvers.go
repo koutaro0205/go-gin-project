@@ -15,9 +15,8 @@ import (
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	todo := model.Todo{
-		Text:   input.Text,
-		UserID: input.UserID,
-		Done:   false,
+		Title: input.Title,
+		Done:  false,
 	}
 	db.DB.Create(&todo)
 
@@ -32,14 +31,11 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	return todos, nil
 }
 
-// ID is the resolver for the id field.
-func (r *todoResolver) ID(ctx context.Context, obj *model.Todo) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
-}
-
-// User is the resolver for the user field.
-func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+// Todo is the resolver for the todo field.
+func (r *queryResolver) Todo(ctx context.Context, input *model.FetchTodo) (*model.Todo, error) {
+	var todo model.Todo
+	db.DB.First(&todo, input.ID)
+	return &todo, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
@@ -48,9 +44,21 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
-// Todo returns generated.TodoResolver implementation.
-func (r *Resolver) Todo() generated.TodoResolver { return &todoResolver{r} }
-
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *todoResolver) ID(ctx context.Context, obj *model.Todo) (int, error) {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
 type todoResolver struct{ *Resolver }
+
+func (r *todoResolver) Title(ctx context.Context, obj *model.Todo) (string, error) {
+	panic(fmt.Errorf("not implemented: Title - title"))
+}

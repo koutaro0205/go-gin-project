@@ -10,9 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const endpoint = "graphql"
+
 // Defining the Playground handler
 func playgroundHandler() gin.HandlerFunc {
-	h := playground.Handler("GraphQL", "/query")
+	h := playground.Handler("GraphQL", "/"+endpoint)
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
@@ -35,6 +37,6 @@ func Setup(engine *gin.Engine) {
 		MaxAge:       12 * 60 * 60,
 	}))
 
-	engine.POST("/query", graphqlHandler())
+	engine.POST("/"+endpoint, graphqlHandler())
 	engine.GET("/", playgroundHandler())
 }
