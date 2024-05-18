@@ -1,7 +1,4 @@
 run:
-	docker-compose exec app go run main.go
-
-server:
 	docker-compose exec app go run server.go
 
 generate:

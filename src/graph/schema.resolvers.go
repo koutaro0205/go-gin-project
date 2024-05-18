@@ -12,8 +12,8 @@ import (
 	"go-gin-project/graph/model"
 )
 
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+// Mutation
+func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTodoInput) (*model.Todo, error) {
 	todo := model.Todo{
 		Title: input.Title,
 		Done:  false,
@@ -23,7 +23,20 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 	return &todo, nil
 }
 
-// Todos is the resolver for the todos field.
+// UpdateTodo is the resolver for the updateTodo field.
+func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTodoInput) (*model.Todo, error) {
+	todo := model.Todo{ID: input.ID}
+	db.DB.First(&todo)
+
+	todo.Title = input.Title
+	todo.Done = input.Done
+
+	db.DB.Save(&todo)
+
+	return &todo, nil
+}
+
+// Query
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	var todos []*model.Todo
 	db.DB.Find(&todos)
@@ -32,7 +45,7 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 }
 
 // Todo is the resolver for the todo field.
-func (r *queryResolver) Todo(ctx context.Context, input *model.FetchTodo) (*model.Todo, error) {
+func (r *queryResolver) Todo(ctx context.Context, input *model.FetchTodoInput) (*model.Todo, error) {
 	var todo model.Todo
 	db.DB.First(&todo, input.ID)
 	return &todo, nil

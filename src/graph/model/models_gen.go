@@ -2,16 +2,22 @@
 
 package model
 
-type FetchTodo struct {
+type CreateTodoInput struct {
+	Title string `json:"title"`
+}
+
+type FetchTodoInput struct {
 	ID int `json:"id"`
 }
 
 type Mutation struct {
 }
 
-type NewTodo struct {
-	Title string `json:"title"`
+type Query struct {
 }
 
-type Query struct {
+type UpdateTodoInput struct {
+	ID    int    `json:"id"`
+	Title string `json:"title"`
+	Done  bool   `json:"done"`
 }

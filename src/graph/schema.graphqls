@@ -11,19 +11,26 @@ type Todo {
   updatedAt: Time!
 }
 
-input FetchTodo {
+input FetchTodoInput {
   id: Int!
 }
 
 type Query {
   todos: [Todo!]!
-  todo(input: FetchTodo): Todo!
+  todo(input: FetchTodoInput): Todo!
 }
 
-input NewTodo {
+input CreateTodoInput {
   title: String!
 }
 
+input UpdateTodoInput {
+  id: Int!
+  title: String!
+  done: Boolean!
+}
+
 type Mutation {
-  createTodo(input: NewTodo!): Todo!
+  createTodo(input: CreateTodoInput!): Todo!
+  updateTodo(input: UpdateTodoInput!): Todo!
 }
