@@ -26,7 +26,9 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTod
 // UpdateTodo is the resolver for the updateTodo field.
 func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTodoInput) (*model.Todo, error) {
 	todo := model.Todo{ID: input.ID}
-	db.DB.First(&todo)
+	if err := db.DB.First(&todo).Error; err != nil {
+		return nil, err
+	}
 
 	todo.Title = input.Title
 	todo.Done = input.Done
@@ -36,9 +38,23 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTod
 	return &todo, nil
 }
 
+// DeleteTodo is the resolver for the deleteTodo field.
+func (r *mutationResolver) DeleteTodo(ctx context.Context, input model.DeleteTodoInput) (*model.Todo, error) {
+	todo := model.Todo{
+		ID: input.ID,
+	}
+
+	if err := db.DB.First(&todo).Error; err != nil {
+		return nil, err
+	}
+	db.DB.Delete(&todo)
+
+	return &todo, nil
+}
+
 // Query
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	var todos []*model.Todo
+	todos := []*model.Todo{}
 	db.DB.Find(&todos)
 
 	return todos, nil
@@ -46,8 +62,14 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 
 // Todo is the resolver for the todo field.
 func (r *queryResolver) Todo(ctx context.Context, input *model.FetchTodoInput) (*model.Todo, error) {
-	var todo model.Todo
-	db.DB.First(&todo, input.ID)
+	todo := model.Todo{
+		ID: input.ID,
+	}
+
+	if err := db.DB.First(&todo).Error; err != nil {
+		return nil, err
+	}
+
 	return &todo, nil
 }
 

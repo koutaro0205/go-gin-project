@@ -6,6 +6,10 @@ type CreateTodoInput struct {
 	Title string `json:"title"`
 }
 
+type DeleteTodoInput struct {
+	ID int `json:"id"`
+}
+
 type FetchTodoInput struct {
 	ID int `json:"id"`
 }
