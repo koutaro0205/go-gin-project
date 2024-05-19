@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"go-gin-project/db"
 	"go-gin-project/graph/generated"
 	"go-gin-project/graph/model"
@@ -25,8 +24,8 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTod
 
 // UpdateTodo is the resolver for the updateTodo field.
 func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTodoInput) (*model.Todo, error) {
-	todo := model.Todo{ID: input.ID}
-	if err := db.DB.First(&todo).Error; err != nil {
+	todo := model.Todo{}
+	if err := db.DB.First(&todo, "id = ?", input.ID).Error; err != nil {
 		return nil, err
 	}
 
@@ -40,13 +39,11 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTod
 
 // DeleteTodo is the resolver for the deleteTodo field.
 func (r *mutationResolver) DeleteTodo(ctx context.Context, input model.DeleteTodoInput) (*model.Todo, error) {
-	todo := model.Todo{
-		ID: input.ID,
-	}
-
-	if err := db.DB.First(&todo).Error; err != nil {
+	todo := model.Todo{}
+	if err := db.DB.First(&todo, "id = ?", input.ID).Error; err != nil {
 		return nil, err
 	}
+
 	db.DB.Delete(&todo)
 
 	return &todo, nil
@@ -62,11 +59,9 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 
 // Todo is the resolver for the todo field.
 func (r *queryResolver) Todo(ctx context.Context, input *model.FetchTodoInput) (*model.Todo, error) {
-	todo := model.Todo{
-		ID: input.ID,
-	}
+	todo := model.Todo{}
 
-	if err := db.DB.First(&todo).Error; err != nil {
+	if err := db.DB.First(&todo, "id = ?", input.ID).Error; err != nil {
 		return nil, err
 	}
 
@@ -88,12 +83,3 @@ type queryResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *todoResolver) ID(ctx context.Context, obj *model.Todo) (int, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
-}
-
-type todoResolver struct{ *Resolver }
-
-func (r *todoResolver) Title(ctx context.Context, obj *model.Todo) (string, error) {
-	panic(fmt.Errorf("not implemented: Title - title"))
-}

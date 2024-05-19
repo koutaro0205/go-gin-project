@@ -4,7 +4,7 @@
 scalar Time
 
 type Todo {
-  id: Int!
+  id: String!
   title: String!
   done: Boolean!
   createdAt: Time!
@@ -12,7 +12,7 @@ type Todo {
 }
 
 input FetchTodoInput {
-  id: Int!
+  id: String!
 }
 
 type Query {
@@ -25,13 +25,13 @@ input CreateTodoInput {
 }
 
 input UpdateTodoInput {
-  id: Int!
+  id: String!
   title: String!
   done: Boolean!
 }
 
 input DeleteTodoInput {
-  id: Int!
+  id: String!
 }
 
 type Mutation {

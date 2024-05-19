@@ -7,11 +7,11 @@ type CreateTodoInput struct {
 }
 
 type DeleteTodoInput struct {
-	ID int `json:"id"`
+	ID string `json:"id"`
 }
 
 type FetchTodoInput struct {
-	ID int `json:"id"`
+	ID string `json:"id"`
 }
 
 type Mutation struct {
@@ -21,7 +21,7 @@ type Query struct {
 }
 
 type UpdateTodoInput struct {
-	ID    int    `json:"id"`
+	ID    string `json:"id"`
 	Title string `json:"title"`
 	Done  bool   `json:"done"`
 }

@@ -301,7 +301,7 @@ var sources = []*ast.Source{
 scalar Time
 
 type Todo {
-  id: Int!
+  id: String!
   title: String!
   done: Boolean!
   createdAt: Time!
@@ -309,7 +309,7 @@ type Todo {
 }
 
 input FetchTodoInput {
-  id: Int!
+  id: String!
 }
 
 type Query {
@@ -322,13 +322,13 @@ input CreateTodoInput {
 }
 
 input UpdateTodoInput {
-  id: Int!
+  id: String!
   title: String!
   done: Boolean!
 }
 
 input DeleteTodoInput {
-  id: Int!
+  id: String!
 }
 
 type Mutation {
@@ -936,9 +936,9 @@ func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Todo_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -948,7 +948,7 @@ func (ec *executionContext) fieldContext_Todo_id(ctx context.Context, field grap
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2946,7 +2946,7 @@ func (ec *executionContext) unmarshalInputDeleteTodoInput(ctx context.Context, o
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2973,7 +2973,7 @@ func (ec *executionContext) unmarshalInputFetchTodoInput(ctx context.Context, ob
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3000,7 +3000,7 @@ func (ec *executionContext) unmarshalInputUpdateTodoInput(ctx context.Context, o
 		switch k {
 		case "id":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3598,21 +3598,6 @@ func (ec *executionContext) unmarshalNCreateTodoInput2goᚑginᚑprojectᚋgraph
 func (ec *executionContext) unmarshalNDeleteTodoInput2goᚑginᚑprojectᚋgraphᚋmodelᚐDeleteTodoInput(ctx context.Context, v interface{}) (model.DeleteTodoInput, error) {
 	res, err := ec.unmarshalInputDeleteTodoInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
