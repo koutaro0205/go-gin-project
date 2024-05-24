@@ -3,7 +3,13 @@
 package model
 
 type CreateTodoInput struct {
-	Title string `json:"title"`
+	Title  string `json:"title"`
+	UserID string `json:"userId"`
+}
+
+type CreateUserInput struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 type DeleteTodoInput struct {
@@ -11,6 +17,10 @@ type DeleteTodoInput struct {
 }
 
 type FetchTodoInput struct {
+	ID string `json:"id"`
+}
+
+type FetchUserInput struct {
 	ID string `json:"id"`
 }
 
