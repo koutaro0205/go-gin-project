@@ -14,8 +14,9 @@ import (
 // Mutation
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTodoInput) (*model.Todo, error) {
 	todo := model.Todo{
-		Title: input.Title,
-		Done:  false,
+		UserID: input.UserID,
+		Title:  input.Title,
+		Done:   false,
 	}
 	db.DB.Create(&todo)
 
@@ -49,10 +50,20 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, input model.DeleteTod
 	return &todo, nil
 }
 
+// CreateUser is the resolver for the createUser field.
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
+	user := model.User{
+		Name:  input.Name,
+		Email: input.Email,
+	}
+	db.DB.Create(&user)
+	return &user, nil
+}
+
 // Query
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	todos := []*model.Todo{}
-	db.DB.Find(&todos)
+	db.DB.Preload("User").Find(&todos)
 
 	return todos, nil
 }
@@ -61,11 +72,30 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 func (r *queryResolver) Todo(ctx context.Context, input *model.FetchTodoInput) (*model.Todo, error) {
 	todo := model.Todo{}
 
-	if err := db.DB.First(&todo, "id = ?", input.ID).Error; err != nil {
+	if err := db.DB.Preload("User").First(&todo, "id = ?", input.ID).Error; err != nil {
 		return nil, err
 	}
 
 	return &todo, nil
+}
+
+// Users is the resolver for the users field.
+func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
+	users := []*model.User{}
+	db.DB.Find(&users)
+
+	return users, nil
+}
+
+// User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context, input *model.FetchUserInput) (*model.User, error) {
+	user := model.User{}
+
+	if err := db.DB.First(&user, "id = ?", input.ID).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
@@ -76,10 +106,3 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.

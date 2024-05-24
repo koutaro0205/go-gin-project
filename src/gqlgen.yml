@@ -91,3 +91,5 @@ models:
       - github.com/99designs/gqlgen/graphql.Int32
   Todo:
     model: go-gin-project/graph/model.Todo
+  User:
+    model: go-gin-project/graph/model.User
