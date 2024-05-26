@@ -9,93 +9,47 @@ import (
 	"go-gin-project/db"
 	"go-gin-project/graph/generated"
 	"go-gin-project/graph/model"
+	"go-gin-project/graph/service"
 )
 
 // Mutation
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTodoInput) (*model.Todo, error) {
-	todo := model.Todo{
-		UserID: input.UserID,
-		Title:  input.Title,
-		Done:   false,
-	}
-	db.DB.Create(&todo)
-
-	return &todo, nil
+	return service.CreateTodo(db.DB, input)
 }
 
 // UpdateTodo is the resolver for the updateTodo field.
 func (r *mutationResolver) UpdateTodo(ctx context.Context, input model.UpdateTodoInput) (*model.Todo, error) {
-	todo := model.Todo{}
-	if err := db.DB.First(&todo, "id = ?", input.ID).Error; err != nil {
-		return nil, err
-	}
-
-	todo.Title = input.Title
-	todo.Done = input.Done
-
-	db.DB.Save(&todo)
-
-	return &todo, nil
+	return service.UpdateTodo(db.DB, input)
 }
 
 // DeleteTodo is the resolver for the deleteTodo field.
 func (r *mutationResolver) DeleteTodo(ctx context.Context, input model.DeleteTodoInput) (*model.Todo, error) {
-	todo := model.Todo{}
-	if err := db.DB.First(&todo, "id = ?", input.ID).Error; err != nil {
-		return nil, err
-	}
-
-	db.DB.Delete(&todo)
-
-	return &todo, nil
+	return service.DeleteTodo(db.DB, input.ID)
 }
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
-	user := model.User{
-		Name:  input.Name,
-		Email: input.Email,
-	}
-	db.DB.Create(&user)
-	return &user, nil
+	return service.CreateUser(db.DB, input)
 }
 
 // Query
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	todos := []*model.Todo{}
-	db.DB.Preload("User").Find(&todos)
-
-	return todos, nil
+	return service.GetAllTodos(db.DB)
 }
 
 // Todo is the resolver for the todo field.
 func (r *queryResolver) Todo(ctx context.Context, input *model.FetchTodoInput) (*model.Todo, error) {
-	todo := model.Todo{}
-
-	if err := db.DB.Preload("User").First(&todo, "id = ?", input.ID).Error; err != nil {
-		return nil, err
-	}
-
-	return &todo, nil
+	return service.GetTodo(db.DB, input.ID)
 }
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	users := []*model.User{}
-	db.DB.Find(&users)
-
-	return users, nil
+	return service.GetAllUsers(db.DB)
 }
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, input *model.FetchUserInput) (*model.User, error) {
-	user := model.User{}
-
-	if err := db.DB.First(&user, "id = ?", input.ID).Error; err != nil {
-		return nil, err
-	}
-
-	return &user, nil
+	return service.GetUser(db.DB, input.ID)
 }
 
 // Mutation returns generated.MutationResolver implementation.

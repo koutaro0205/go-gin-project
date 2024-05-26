@@ -21,10 +21,6 @@ func InitDB() {
 	DB.AutoMigrate(&model.Todo{}, &model.User{})
 }
 
-func GetDB() *gorm.DB {
-	return DB
-}
-
 func CloseDB() {
 	database, err := DB.DB()
 	if err != nil {
